@@ -1,12 +1,19 @@
 const express = require('express');
 const router = express.Router();
 const userRepository = require('../models/user-repository');
+const { body, validationResult } = require('express-validator');
 
 router.get('/', (req, res) => {
   res.send(userRepository.getUsers())
 });
 
-router.post('/login',(req, res) => {
+router.post('/login', body('firstName').not().isEmpty() ,
+                      body('password').not().isEmpty() ,
+                      (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
   if(userRepository.isAuthentified(req.body) == false) {
     res.status(401).send("Login failed !")
   }
@@ -22,7 +29,10 @@ router.get('/:firstName', (req, res) => {
   res.send(foundUser);
 });
 
-router.post('/', (req, res) => {
+router.post('/', body('firstName').not().isEmpty() ,
+                 body('lastName').not().isEmpty() ,
+                 body('password').isLength({ min: 8 }),
+                 (req, res) => {
   if(userRepository.isAdmin(req.headers.authorization)) {
     userRepository.createUser(req.body);
     res.status(201).send("User created !");
