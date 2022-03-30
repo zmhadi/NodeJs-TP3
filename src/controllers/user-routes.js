@@ -4,7 +4,7 @@ const userRepository = require('../models/user-repository');
 const { body, validationResult } = require('express-validator');
 
 router.get('/', (req, res) => {
-  res.send(userRepository.getUsers())
+  res.status(200).send(userRepository.getUsers())
 });
 
 router.post('/login', body('firstName').not().isEmpty().withMessage('FirstName is empty !') ,
